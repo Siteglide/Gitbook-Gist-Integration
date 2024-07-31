@@ -1,0 +1,27 @@
+name: gitbook_gist_integration
+title: Gitbook Gist Integration
+organization: docs.siteglide.com
+visibility: private
+description: ''
+script: src\index.tsx
+scopes:
+  - space:content:read
+  - space:content:write
+  - space:metadata:read
+  - space:metadata:write
+  - space:views:read
+  - space:git:sync
+blocks:
+  - id: gitbook_gist_integration
+    title: Gitbook Gist Integration
+    description: My GitBook Integration
+secrets: {}
+configurations:
+    space:
+        properties:
+            gist_key:
+                type: string
+                title: gist Key
+                description: Available in gist snippet
+        required:
+            - gist_key
