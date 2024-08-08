@@ -1,16 +1,12 @@
-name: gitbook_gist_integration
+name: gitbook-gist-integration
 title: Gitbook Gist Integration
-organization: docs.siteglide.com
-visibility: private
+organization: 4DsXpZUJmkzzwFMKxvx9
+visibility: unlisted
 description: ''
 script: src\index.tsx
 scopes:
-  - space:content:read
-  - space:content:write
-  - space:metadata:read
-  - space:metadata:write
-  - space:views:read
-  - space:git:sync
+    - space:script:inject
+    - site:script:inject
 blocks:
   - id: gitbook_gist_integration
     title: Gitbook Gist Integration

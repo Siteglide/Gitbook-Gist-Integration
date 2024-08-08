@@ -1,56 +1,42 @@
 import {
     createIntegration,
-    createComponent,
-    FetchEventCallback,
+    FetchPublishScriptEventCallback,
     RuntimeContext,
-  } from "@gitbook/runtime";
+    RuntimeEnvironment,
+} from '@gitbook/runtime';
 
-  type IntegrationContext = {} & RuntimeContext;
-  type IntegrationBlockProps = {};
-  type IntegrationBlockState = { message: string };
-  type IntegrationAction = { action: "click" };
+import script from './script.raw.js';
 
-  const handleFetchEvent: FetchEventCallback<IntegrationContext> = async (
-    request,
-    context
-  ) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { api } = context;
-    const user = api.user.getAuthenticatedUser();
+type GistRuntimeContext = RuntimeContext<
+    RuntimeEnvironment<
+        {},
+        {
+            gist_key?: string;
+        }
+    >
+>;
 
-    return new Response(JSON.stringify(user));
-  };
+export const handleFetchEvent: FetchPublishScriptEventCallback = async (
+    event,
+    { environment }: GistRuntimeContext
+) => {
+    const gistId =
+        environment.spaceInstallation?.configuration?.gist_key ??
+        environment.siteInstallation?.configuration?.gist_key ??
+        'Gist Key not configured';
 
-  const exampleBlock = createComponent<
-     IntegrationBlockProps,
-     IntegrationBlockState,
-     IntegrationAction,
-     IntegrationContext
-  >({
-    componentId: "gitbook_gist_integration",
-    initialState: (props) => {
-      return {
-        message: "Click Me",
-      };
-    },
-    action: async (element, action, context) => {
-      switch (action.action) {
-        case "click":
-          console.log("Button Clicked");
-          return {};
-      }
-    },
-    render: async (element, context) => {
-      return (
-        <block>
-          <button label={element.state.message} onPress={{ action: "click" }} />
-        </block>
-      );
-    },
-  });
+    if (!gistId) {
+        return;
+    }
 
-  export default createIntegration({
-    fetch: handleFetchEvent,
-    components: [exampleBlock],
-    events: {},
-  });
+    return new Response(script.replace('<TO_REPLACE>', gistId), {
+        headers: {
+            'Content-Type': 'application/javascript',
+            'Cache-Control': 'max-age=604800',
+        },
+    });
+};
+
+export default createIntegration<GistRuntimeContext>({
+    fetch_published_script: handleFetchEvent,
+});
